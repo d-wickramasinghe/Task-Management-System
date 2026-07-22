@@ -1,45 +1,65 @@
+import {
+  CheckCircle,
+  Clock3,
+  ClipboardList,
+} from "lucide-react";
+
 interface Props {
   total: number;
-  completed: number;
   pending: number;
+  completed: number;
 }
 
 function DashboardStats({
   total,
-  completed,
   pending,
+  completed,
 }: Props) {
+  const cards = [
+    {
+      title: "Total Tasks",
+      value: total,
+      icon: <ClipboardList size={28} />,
+      color: "bg-blue-500",
+    },
+    {
+      title: "Pending",
+      value: pending,
+      icon: <Clock3 size={28} />,
+      color: "bg-yellow-500",
+    },
+    {
+      title: "Completed",
+      value: completed,
+      icon: <CheckCircle size={28} />,
+      color: "bg-green-500",
+    },
+  ];
+
   return (
-    <div className="grid md:grid-cols-3 gap-5 mt-8">
+    <div className="grid gap-6 md:grid-cols-3">
+      {cards.map((card) => (
+        <div
+          key={card.title}
+          className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6 flex items-center justify-between"
+        >
+          <div>
+            <p className="text-gray-500">
+              {card.title}
+            </p>
 
-      <div className="bg-blue-500 text-white rounded-xl p-6 shadow">
-        <h3 className="text-lg">Total Tasks</h3>
+            <h2 className="text-4xl font-bold mt-2">
+              {card.value}
+            </h2>
+          </div>
 
-        <p className="text-4xl font-bold">
-          {total}
-        </p>
-      </div>
-
-      <div className="bg-yellow-500 text-white rounded-xl p-6 shadow">
-        <h3 className="text-lg">
-          Pending
-        </h3>
-
-        <p className="text-4xl font-bold">
-          {pending}
-        </p>
-      </div>
-
-      <div className="bg-green-500 text-white rounded-xl p-6 shadow">
-        <h3 className="text-lg">
-          Completed
-        </h3>
-
-        <p className="text-4xl font-bold">
-          {completed}
-        </p>
-      </div>
-
+          <div
+            className={`${card.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white`}
+          >
+            {card.icon}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
