@@ -77,19 +77,47 @@ export const getTaskById = async (req: Request, res: Response) => {
   }
 };
 
+// export const updateTask = async (req: Request, res: Response) => {
+//   try {
+//     const task = await prisma.task.update({
+//       where: {
+//         id: Number(req.params.id),
+//       },
+//       data: req.body,
+//     });
+
+//     res.json(task);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Failed to update task",
+//     });
+//   }
+// };
+
 export const updateTask = async (req: Request, res: Response) => {
   try {
+    console.log("Request Body:", req.body);
+    console.log("Task ID:", req.params.id);
+
     const task = await prisma.task.update({
       where: {
         id: Number(req.params.id),
       },
-      data: req.body,
+      data: {
+        ...req.body,
+        dueDate: req.body.dueDate
+          ? new Date(req.body.dueDate)
+          : undefined,
+      },
     });
 
     res.json(task);
   } catch (error) {
+    console.error("UPDATE ERROR:", error);
+
     res.status(500).json({
       message: "Failed to update task",
+      error,
     });
   }
 };
