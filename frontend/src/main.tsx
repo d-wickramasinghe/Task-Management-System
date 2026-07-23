@@ -5,10 +5,13 @@ import App from "./App";
 import "./index.css";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import { NotificationProvider } from "./context/NotificationContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <App />
+       <NotificationProvider>
+      <App />
+    </NotificationProvider>
     <ToastContainer
   position="top-right"
   autoClose={3000}

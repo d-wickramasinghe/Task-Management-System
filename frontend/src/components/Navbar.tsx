@@ -33,6 +33,7 @@
 // export default Navbar;
 
 import { Bell } from "lucide-react";
+import NotificationBell from "./NotificationBell"; 
 
 function Navbar() {
   const today = new Date().toLocaleDateString("en-US", {
@@ -61,10 +62,11 @@ function Navbar() {
 
         <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 
-        <button className="relative rounded-lg border border-slate-200 p-2.5 text-slate-500 transition-colors duration-150 hover:bg-slate-50 hover:text-slate-700">
-          <Bell size={18} />
-          <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-red-500" />
-        </button>
+<div className="flex items-center gap-4">
+
+    <NotificationBell />
+
+</div>
 
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
           A

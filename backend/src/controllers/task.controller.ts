@@ -24,9 +24,65 @@ export const createTask = async (req: Request, res: Response) => {
   }
 };
 
+// export const getTasks = async (req: Request, res: Response) => {
+//   try {
+//     const { search, status, priority, sort } = req.query;
+
+//     const tasks = await prisma.task.findMany({
+//       where: {
+//         title: search
+//           ? {
+//               contains: String(search),
+//               mode: "insensitive",
+//             }
+//           : undefined,
+
+//         status: status ? String(status) : undefined,
+
+//         priority: priority ? String(priority) : undefined,
+//       },
+
+//       orderBy: {
+//         dueDate: sort === "dueDate" ? "asc" : "desc",
+//       },
+//     });
+
+//     res.json(tasks);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Failed to fetch tasks",
+//     });
+//   }
+// };
+
 export const getTasks = async (req: Request, res: Response) => {
   try {
     const { search, status, priority, sort } = req.query;
+
+    let orderBy:
+      | { createdAt: "asc" | "desc" }
+      | { dueDate: "asc" | "desc" };
+
+    switch (sort) {
+      case "oldest":
+        orderBy = {
+          createdAt: "asc",
+        };
+        break;
+
+      case "dueDate":
+        orderBy = {
+          dueDate: "asc",
+        };
+        break;
+
+      case "newest":
+      default:
+        orderBy = {
+          createdAt: "desc",
+        };
+        break;
+    }
 
     const tasks = await prisma.task.findMany({
       where: {
@@ -42,13 +98,13 @@ export const getTasks = async (req: Request, res: Response) => {
         priority: priority ? String(priority) : undefined,
       },
 
-      orderBy: {
-        dueDate: sort === "dueDate" ? "asc" : "desc",
-      },
+      orderBy,
     });
 
-    res.json(tasks);
+    res.status(200).json(tasks);
   } catch (error) {
+    console.error("GET TASKS ERROR:", error);
+
     res.status(500).json({
       message: "Failed to fetch tasks",
     });
