@@ -1,113 +1,14 @@
-// import { useState } from "react";
-// import api from "../services/api";
-
-// interface Props {
-//   onTaskAdded: () => void;
-// }
-
-// function AddTaskForm({ onTaskAdded }: Props) {
-//   const [title, setTitle] = useState("");
-//   const [description, setDescription] = useState("");
-//   const [priority, setPriority] = useState("Medium");
-//   const [status, setStatus] = useState("Pending");
-//   const [dueDate, setDueDate] = useState("");
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     try {
-//       await api.post("/tasks", {
-//         title,
-//         description,
-//         priority,
-//         status,
-//         dueDate,
-//       });
-
-//       setTitle("");
-//       setDescription("");
-//       setPriority("Medium");
-//       setStatus("Pending");
-//       setDueDate("");
-
-//       onTaskAdded();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Failed to create task");
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <h2>Add Task</h2>
-
-//       <input
-//         type="text"
-//         placeholder="Title"
-//         value={title}
-//         onChange={(e) => setTitle(e.target.value)}
-//         required
-//       />
-
-//       <br /><br />
-
-//       <textarea
-//         placeholder="Description"
-//         value={description}
-//         onChange={(e) => setDescription(e.target.value)}
-//       />
-
-//       <br /><br />
-
-//       <select
-//         value={priority}
-//         onChange={(e) => setPriority(e.target.value)}
-//       >
-//         <option>High</option>
-//         <option>Medium</option>
-//         <option>Low</option>
-//       </select>
-
-//       <br /><br />
-
-//       <select
-//         value={status}
-//         onChange={(e) => setStatus(e.target.value)}
-//       >
-//         <option>Pending</option>
-//         <option>In Progress</option>
-//         <option>Completed</option>
-//       </select>
-
-//       <br /><br />
-
-//       <input
-//         type="date"
-//         value={dueDate}
-//         onChange={(e) => setDueDate(e.target.value)}
-//         required
-//       />
-
-//       <br /><br />
-
-//       <button type="submit">Add Task</button>
-//     </form>
-//   );
-// }
-
-// export default AddTaskForm;
-
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { CalendarDays, Flag, ListChecks } from "lucide-react";
 import api from "../services/api";
 import { toast } from "react-toastify";
-import { Plus, Flag, ListChecks, CalendarDays } from "lucide-react";
 
 interface Props {
   onTaskAdded: () => void;
+  onClose: () => void;
 }
 
-function AddTaskForm({ onTaskAdded }: Props) {
+function AddTaskForm({ onTaskAdded, onClose, }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Medium");
@@ -126,6 +27,8 @@ function AddTaskForm({ onTaskAdded }: Props) {
         dueDate,
       });
 
+      toast.success("Task created successfully!");
+
       setTitle("");
       setDescription("");
       setPriority("Medium");
@@ -133,63 +36,111 @@ function AddTaskForm({ onTaskAdded }: Props) {
       setDueDate("");
 
       onTaskAdded();
-
-      toast.success("Task created successfully!");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to create task");
     }
   };
 
+  useEffect(() => {
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, []);
+
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      onClose();
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () =>
+    window.removeEventListener("keydown", handleKeyDown);
+}, [onClose]);
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600">
-          <Plus size={18} strokeWidth={2.5} />
+  <div
+    onClick={onClose}
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-slate-200 px-8 py-6">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">
+            Add New Task
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Create a new task for your team.
+          </p>
         </div>
-        <h2 className="text-lg font-semibold text-slate-800">
-          Add New Task
-        </h2>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg p-2 transition hover:bg-slate-100"
+        >
+          ✕
+        </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 p-8"
+      >
+        {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             Title
           </label>
+
           <input
             type="text"
-            placeholder="e.g. Prepare quarterly report"
+            placeholder="Enter task title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 transition-shadow duration-150 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
           />
         </div>
 
+        {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             Description
           </label>
+
           <textarea
-            rows={3}
-            placeholder="Add any relevant details..."
+            rows={4}
+            placeholder="Task description..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 resize-none transition-shadow duration-150 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
           />
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
+        {/* Grid */}
+        <div className="grid gap-5 md:grid-cols-3">
+
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1.5">
-              <Flag size={14} className="text-slate-400" />
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
               Priority
             </label>
+
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white transition-shadow duration-150 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option>High</option>
               <option>Medium</option>
@@ -198,14 +149,14 @@ function AddTaskForm({ onTaskAdded }: Props) {
           </div>
 
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1.5">
-              <ListChecks size={14} className="text-slate-400" />
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
               Status
             </label>
+
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 bg-white transition-shadow duration-150 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option>Pending</option>
               <option>In Progress</option>
@@ -214,30 +165,44 @@ function AddTaskForm({ onTaskAdded }: Props) {
           </div>
 
           <div>
-            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 mb-1.5">
-              <CalendarDays size={14} className="text-slate-400" />
+            <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700">
               Due Date
             </label>
+
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               required
-              className="w-full border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-800 transition-shadow duration-150 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </div>
+
         </div>
 
-        <button
-          type="submit"
-          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold py-3 rounded-lg transition-colors duration-150 shadow-sm hover:shadow"
-        >
-          <Plus size={16} strokeWidth={2.5} />
-          Add Task
-        </button>
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 pt-2">
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-300 px-6 py-3 font-medium transition hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="rounded-xl bg-indigo-600 px-6 py-3 font-medium text-white transition hover:bg-indigo-700"
+          >
+            Create Task
+          </button>
+
+        </div>
       </form>
     </div>
-  );
+  </div>
+);
 }
 
 export default AddTaskForm;
